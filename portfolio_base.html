@@ -175,6 +175,56 @@ nav.scrolled{border-color:var(--border)}
 footer{padding:28px 48px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);font-size:12.5px;color:var(--muted)}
 footer strong{color:var(--ink)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+/* ===== ENHANCEMENTS ===== */
+/* scroll progress */
+#progress{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--teal),#14b8a6 60%,var(--amber));z-index:1000;border-radius:0 3px 3px 0}
+/* hero neural canvas */
+#hero{position:relative}
+#neural{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.55}
+#hero>div{position:relative;z-index:2}
+.hero-card{animation:fadeUp .5s .12s ease both,floaty 7s 2.2s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+/* scroll hint */
+.hero-scroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:2.5px}
+.wheel{width:21px;height:33px;border:1.5px solid var(--muted);border-radius:12px;position:relative;opacity:.7}
+.wheel::after{content:'';position:absolute;top:6px;left:50%;width:3px;height:7px;background:var(--teal);border-radius:2px;transform:translateX(-50%);animation:wheel 1.7s ease infinite}
+@keyframes wheel{0%{opacity:1;transform:translate(-50%,0)}70%{opacity:0;transform:translate(-50%,11px)}100%{opacity:0;transform:translate(-50%,11px)}}
+/* typewriter */
+.type-caret{display:inline-block;width:2px;height:.95em;background:var(--teal);margin-left:4px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+/* tech ticker */
+.marquee{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--paper);padding:15px 0}
+.marquee-track{display:flex;gap:48px;width:max-content;animation:scrollX 32s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.mq{display:flex;align-items:center;gap:10px;font-family:'Geist Mono',monospace;font-size:12.5px;color:var(--muted);white-space:nowrap;font-weight:500}
+.mq::before{content:'◆';font-size:7px;color:var(--teal);opacity:.6}
+@keyframes scrollX{to{transform:translateX(-50%)}}
+/* project card artwork */
+.proj-art{height:122px;display:block;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.proj-art svg{width:100%;height:100%;display:block}
+.dash{stroke-dasharray:5 6;animation:dashmove 22s linear infinite}
+@keyframes dashmove{to{stroke-dashoffset:-260}}
+.pdot{animation:dotpulse 2.6s ease infinite}
+@keyframes dotpulse{0%,100%{opacity:.3}50%{opacity:1}}
+.draw{stroke-dasharray:340;stroke-dashoffset:340;transition:stroke-dashoffset 1.5s ease .15s}
+.reveal.up .draw{stroke-dashoffset:0}
+.spin-slow{transform-origin:center;animation:spinS 14s linear infinite}
+@keyframes spinS{to{transform:rotate(360deg)}}
+/* back to top */
+#toTop{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--cream);border:none;font-size:16px;cursor:none;z-index:700;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s,transform .3s,background .2s;box-shadow:0 8px 28px var(--shadow)}
+#toTop.show{opacity:1;transform:none;pointer-events:auto}
+#toTop:hover{background:var(--teal)}
+/* scrollspy */
+.nav-links a.active{color:var(--teal)}
+/* contact extra glow */
+.contact-wrap::after{content:'';position:absolute;bottom:-150px;left:-110px;width:360px;height:360px;background:radial-gradient(circle,rgba(217,119,6,.14) 0%,transparent 70%);pointer-events:none}
+.kpi:hover .kpi-n{color:var(--teal)}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  #neural{display:none}
+  html{scroll-behavior:auto}
+}
+@media(max-width:960px){.hero-scroll{display:none}#toTop{bottom:18px;right:18px}}
 @media(max-width:960px){
   #hero{grid-template-columns:1fr;padding-left:20px;padding-right:20px}
   .hero-card{display:none}
@@ -194,6 +244,8 @@ footer strong{color:var(--ink)}
 <body>
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
+<div id="progress"></div>
+<button id="toTop" aria-label="Back to top">↑</button>
 
 <div id="lang-pill">
   <button class="active" onclick="setLang('en')">EN</button>
@@ -212,15 +264,15 @@ footer strong{color:var(--ink)}
 
 <!-- HERO -->
 <section id="hero">
+  <canvas id="neural" aria-hidden="true"></canvas>
   <div>
     <div class="hero-tag">
       <span class="avail-dot"></span>
-      <span lang-target="en">Available · Munich, Germany</span>
-      <span lang-target="de">Verfügbar · München, Deutschland</span>
+      <span lang-target="en">Available · Germany</span>
+      <span lang-target="de">Verfügbar · Deutschland</span>
     </div>
     <h1 class="hero-name">Prembabu<br><span>Chandrababu</span></h1>
-    <p class="hero-role" lang-target="en">ML Engineer &amp; Data Scientist</p>
-    <p class="hero-role" lang-target="de">ML-Ingenieur &amp; Datenwissenschaftler</p>
+    <p class="hero-role"><span id="typed"></span><span class="type-caret"></span></p>
     <p class="hero-desc" lang-target="en">Master's student in Web &amp; Data Science at University of Koblenz — building intelligent systems with machine learning, computer vision, and data pipelines that work in the real world.</p>
     <p class="hero-desc" lang-target="de">Masterstudent Web &amp; Data Science an der Universität Koblenz — entwickelt intelligente Systeme mit maschinellem Lernen, Computer Vision und Datenpipelines für reale Anwendungen.</p>
     <div class="hero-btns">
@@ -230,10 +282,10 @@ footer strong{color:var(--ink)}
       <a href="#projects" class="btn-ghost" lang-target="de">Meine Projekte</a>
     </div>
     <div class="hero-stats">
-      <div><div class="hs-num">6<sup>+</sup></div><div class="hs-label" lang-target="en">ML Projects</div><div class="hs-label" lang-target="de">ML-Projekte</div></div>
-      <div><div class="hs-num">94<sup>%</sup></div><div class="hs-label" lang-target="en">Peak Accuracy</div><div class="hs-label" lang-target="de">Höchste Genauigkeit</div></div>
-      <div><div class="hs-num">1</div><div class="hs-label">IEEE Paper</div></div>
-      <div><div class="hs-num">3<sup>+</sup></div><div class="hs-label" lang-target="en">Awards</div><div class="hs-label" lang-target="de">Auszeichnungen</div></div>
+      <div><div class="hs-num"><span class="count" data-target="6">0</span><sup>+</sup></div><div class="hs-label" lang-target="en">ML Projects</div><div class="hs-label" lang-target="de">ML-Projekte</div></div>
+      <div><div class="hs-num"><span class="count" data-target="94">0</span><sup>%</sup></div><div class="hs-label" lang-target="en">Peak Accuracy</div><div class="hs-label" lang-target="de">Höchste Genauigkeit</div></div>
+      <div><div class="hs-num"><span class="count" data-target="1">0</span></div><div class="hs-label">IEEE Paper</div></div>
+      <div><div class="hs-num"><span class="count" data-target="3">0</span><sup>+</sup></div><div class="hs-label" lang-target="en">Awards</div><div class="hs-label" lang-target="de">Auszeichnungen</div></div>
     </div>
   </div>
   <div class="hero-card">
@@ -242,7 +294,7 @@ footer strong{color:var(--ink)}
     <div class="hc-title" lang-target="en">ML Engineer · Data Scientist</div>
     <div class="hc-title" lang-target="de">ML-Ingenieur · Datenwissenschaftler</div>
     <div class="hc-divider"></div>
-    <div class="hc-item"><div class="hc-icon">📍</div><div><div class="hc-item-label">Location</div><div class="hc-item-val">Munich, Germany</div></div></div>
+    <div class="hc-item"><div class="hc-icon">📍</div><div><div class="hc-item-label">Location</div><div class="hc-item-val">Germany</div></div></div>
     <div class="hc-item"><div class="hc-icon">🎓</div><div><div class="hc-item-label" lang-target="en">Degree</div><div class="hc-item-label" lang-target="de">Abschluss</div><div class="hc-item-val">M.Sc. Web &amp; Data Science</div></div></div>
     <div class="hc-item"><div class="hc-icon">🏫</div><div><div class="hc-item-label" lang-target="en">University</div><div class="hc-item-label" lang-target="de">Universität</div><div class="hc-item-val">Uni Koblenz, 2023–Now</div></div></div>
     <div class="hc-item"><div class="hc-icon">🌍</div><div><div class="hc-item-label" lang-target="en">Languages</div><div class="hc-item-label" lang-target="de">Sprachen</div><div class="hc-item-val">ENGLISH · DEUTSCH</div></div></div>
@@ -252,7 +304,15 @@ footer strong{color:var(--ink)}
       <a href="https://mail.google.com/mail/?view=cm&fs=1&to=prembabu208@gmail.com" target="_blank" class="hc-link">✉️ Email</a>
     </div>
   </div>
+  <div class="hero-scroll"><span class="wheel"></span><span lang-target="en">SCROLL</span><span lang-target="de">SCROLLEN</span></div>
 </section>
+
+<!-- TECH TICKER -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="mq-track">
+    <span class="mq">Python</span><span class="mq">Pandas</span><span class="mq">Scikit-learn</span><span class="mq">Computer Vision</span><span class="mq">Open3D</span><span class="mq">Flask</span><span class="mq">SQL</span><span class="mq">NumPy</span><span class="mq">Deep Learning</span><span class="mq">Feature Engineering</span><span class="mq">Git</span><span class="mq">Linux</span><span class="mq">R</span><span class="mq">Data Pipelines</span>
+  </div>
+</div>
 
 <!-- ABOUT -->
 <section id="about" class="section section-alt">
@@ -268,8 +328,8 @@ footer strong{color:var(--ink)}
           <p lang-target="en">At Spiro Technologies I analyzed <strong>10+ real datasets</strong>, implemented ML algorithms, and collaborated with 4 engineers. Now seeking <strong>internships, Werkstudent, or entry-level ML/data roles</strong> in Germany.</p>
           <p lang-target="de">Bei Spiro Technologies analysierte ich <strong>über 10 Datensätze</strong> und arbeitete mit 4 Ingenieuren. Ich suche jetzt <strong>Praktika, Werkstudentenstellen oder Einstiegspositionen</strong> in Deutschland.</p>
           <div class="lang-pills">
-            <div class="lp">🇬🇧 English <span class="lp-level">C1</span></div>
-            <div class="lp">🇩🇪 Deutsch <span class="lp-level">B1</span></div>
+            <div class="lp"> English <span class="lp-level">C1</span></div>
+            <div class="lp"> Deutsch <span class="lp-level">B1</span></div>
             <div class="lp">🇮🇳 Tamil <span class="lp-level">Native</span></div>
             <div class="lp">🇮🇳 Malayalam <span class="lp-level">Native</span></div>
             <div class="lp">🇮🇳 Telugu <span class="lp-level">Native</span></div>
@@ -277,10 +337,10 @@ footer strong{color:var(--ink)}
         </div>
       </div>
       <div class="kpi-grid reveal d2">
-        <div class="kpi"><div class="kpi-n">6<sup>+</sup></div><div class="kpi-l" lang-target="en">ML Projects</div><div class="kpi-l" lang-target="de">ML-Projekte</div></div>
-        <div class="kpi"><div class="kpi-n">94<sup>%</sup></div><div class="kpi-l" lang-target="en">Peak Accuracy</div><div class="kpi-l" lang-target="de">Höchste Genauigkeit</div></div>
-        <div class="kpi"><div class="kpi-n">1</div><div class="kpi-l" lang-target="en">IEEE Publication</div><div class="kpi-l" lang-target="de">IEEE-Veröffentlichung</div></div>
-        <div class="kpi"><div class="kpi-n">30<sup>+</sup></div><div class="kpi-l" lang-target="en">App Demo Users</div><div class="kpi-l" lang-target="de">App-Demo-Nutzer</div></div>
+        <div class="kpi"><div class="kpi-n"><span class="count" data-target="6">0</span><sup>+</sup></div><div class="kpi-l" lang-target="en">ML Projects</div><div class="kpi-l" lang-target="de">ML-Projekte</div></div>
+        <div class="kpi"><div class="kpi-n"><span class="count" data-target="94">0</span><sup>%</sup></div><div class="kpi-l" lang-target="en">Peak Accuracy</div><div class="kpi-l" lang-target="de">Höchste Genauigkeit</div></div>
+        <div class="kpi"><div class="kpi-n"><span class="count" data-target="1">0</span></div><div class="kpi-l" lang-target="en">IEEE Publication</div><div class="kpi-l" lang-target="de">IEEE-Veröffentlichung</div></div>
+        <div class="kpi"><div class="kpi-n"><span class="count" data-target="30">0</span><sup>+</sup></div><div class="kpi-l" lang-target="en">App Demo Users</div><div class="kpi-l" lang-target="de">App-Demo-Nutzer</div></div>
       </div>
     </div>
   </div>
@@ -306,12 +366,80 @@ footer strong{color:var(--ink)}
   <div class="container">
     <div class="reveal"><div class="s-eyebrow" lang-target="en">What I've Built</div><div class="s-eyebrow" lang-target="de">Was ich gebaut habe</div><h2 class="s-heading" lang-target="en">Projects</h2><h2 class="s-heading" lang-target="de">Projekte</h2><p class="s-sub" lang-target="en">Real problems, real solutions — with measurable results.</p><p class="s-sub" lang-target="de">Echte Probleme, echte Lösungen — mit messbaren Ergebnissen.</p></div>
     <div class="proj-grid">
-      <div class="proj-card reveal"><div class="proj-top"></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat">AI &amp; CV</span><span class="proj-date">10/2025–02/2026</span></div><div class="proj-title" lang-target="en">3D Shape Reconstruction &amp; Point Cloud</div><div class="proj-title" lang-target="de">3D-Rekonstruktion &amp; Punktwolke</div><p class="proj-desc" lang-target="en">Built a 3D reconstruction pipeline using Open3D. Advanced point cloud filtering and surface reconstruction algorithms convert raw sensor data into refined 3D meshes at scale.</p><p class="proj-desc" lang-target="de">3D-Rekonstruktionspipeline mit Open3D. Fortschrittliche Filterung und Oberflächenrekonstruktion für hochdimensionale Geometrie.</p><div class="proj-chips"><span class="proj-chip">Open3D</span><span class="proj-chip">NumPy</span><span class="proj-chip">Python</span><span class="proj-chip">Point Cloud</span></div></div></div>
-      <div class="proj-card reveal d1"><div class="proj-top slate"></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat slate" lang-target="en">Data Governance</span><span class="proj-cat slate" lang-target="de">Daten-Governance</span><span class="proj-date">10/2024–02/2025</span></div><div class="proj-title" lang-target="en">Data Space for Bioindustry</div><div class="proj-title" lang-target="de">Datenraum für Bioindustrie</div><p class="proj-desc" lang-target="en">Decentralized data-sharing architecture based on IDS standards for secure biotech collaboration. Implemented ABAC, encryption and semantic interoperability.</p><p class="proj-desc" lang-target="de">Dezentrale Datenteilungsarchitektur auf IDS-Basis für sichere Biotech-Zusammenarbeit mit ABAC und Verschlüsselung.</p><div class="proj-chips"><span class="proj-chip">IDS</span><span class="proj-chip">ABAC</span><span class="proj-chip">Encryption</span><span class="proj-chip">System Design</span></div></div></div>
-      <div class="proj-card reveal d2"><div class="proj-top rose"></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat rose">AI &amp; CV</span><span class="proj-date">05–09/2023</span></div><div class="proj-title">FIT SEIN – Fitness Assistant</div><p class="proj-desc" lang-target="en">CV system extracting body metrics via camera. Multi-factor recommendation engine using physiological data to generate personalised nutrition &amp; fitness plans with a milestone tracker.</p><p class="proj-desc" lang-target="de">Computer-Vision-System zur Körpervermessung. Empfehlungsmaschine für individuelle Ernährungs- und Fitnesspläne auf Basis physiologischer Daten.</p><div class="proj-chips"><span class="proj-chip">Pose Detection</span><span class="proj-chip">Flask</span><span class="proj-chip">Python</span><span class="proj-chip">CV</span></div></div></div>
-      <div class="proj-card reveal"><div class="proj-top sand"></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat slate">IoT</span><span class="proj-date">01–04/2023</span></div><div class="proj-title">BROX Automation</div><p class="proj-desc" lang-target="en">IoT safety system (Arduino, GPS, sensors) for vehicle tracking &amp; driver safety. Helmet and alcohol detection &gt;85% accuracy. Published at IEEE ICONSTEM 2023.</p><p class="proj-desc" lang-target="de">IoT-Sicherheitssystem (Arduino, GPS, Sensoren) für Fahrzeugverfolgung. Helm- und Alkoholdetektion mit &gt;85% Genauigkeit. IEEE ICONSTEM 2023.</p><div class="proj-chips"><span class="proj-chip">Arduino</span><span class="proj-chip">GPS</span><span class="proj-chip">IoT</span><span class="proj-chip">📄 IEEE</span></div></div></div>
-      <div class="proj-card reveal d1"><div class="proj-top amber"></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat amber">AI</span><span class="proj-date">08–12/2022</span></div><div class="proj-title" lang-target="en">Crude Oil Price Prediction</div><div class="proj-title" lang-target="de">Rohölpreisvorhersage</div><p class="proj-desc" lang-target="en">Regression model at 87% accuracy. Flask web app used by 30+ demo users with sub-2s response time. Won Best Project on Time — ICT Academy (IBM-powered).</p><p class="proj-desc" lang-target="de">Regressionsmodell mit 87% Genauigkeit. Flask-App mit 30+ Nutzern unter 2s. Gewann Best Project on Time – ICT Academy.</p><div class="proj-chips"><span class="proj-chip">Regression</span><span class="proj-chip">Flask</span><span class="proj-chip">Python</span><span class="proj-chip">🏆 Best Project</span></div></div></div>
-      <div class="proj-card reveal d2"><div class="proj-top violet"></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat violet">AI</span><span class="proj-date">05–07/2022</span></div><div class="proj-title" lang-target="en">Stress Prediction System</div><div class="proj-title" lang-target="de">Stressvorhersagesystem</div><p class="proj-desc" lang-target="en">Compared Logistic Regression, Random Forest &amp; Decision Trees — achieved 94.56% peak accuracy. Real-time Flask chatbot for instant mental health assessments.</p><p class="proj-desc" lang-target="de">Vergleich von 3 ML-Algorithmen — 94,56% Genauigkeit. Flask-Chatbot für Echtzeit-Mentalgesundheitsbewertungen.</p><div class="proj-chips"><span class="proj-chip">Random Forest</span><span class="proj-chip">Flask</span><span class="proj-chip">94.56% Acc</span></div></div></div>
+      <div class="proj-card reveal"><div class="proj-art" style="background:#e8f4f4"><svg viewBox="0 0 360 122" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <g stroke="#0d7377" stroke-width="1" opacity=".35" fill="none">
+          <path class="draw" d="M110 92 L180 34 L262 88 L110 92 M180 34 L186 100 M110 92 L186 100 L262 88"/>
+        </g>
+        <g fill="#0d7377">
+          <circle class="pdot" cx="110" cy="92" r="3.5"/><circle class="pdot" cx="180" cy="34" r="3.5" style="animation-delay:.4s"/><circle class="pdot" cx="262" cy="88" r="3.5" style="animation-delay:.8s"/><circle class="pdot" cx="186" cy="100" r="3.5" style="animation-delay:1.2s"/>
+          <circle cx="140" cy="60" r="2" opacity=".45"/><circle cx="215" cy="55" r="2" opacity=".45"/><circle cx="160" cy="80" r="2" opacity=".45"/><circle cx="230" cy="72" r="2" opacity=".45"/><circle cx="196" cy="64" r="2" opacity=".45"/><circle cx="128" cy="76" r="2" opacity=".45"/><circle cx="248" cy="60" r="2" opacity=".45"/><circle cx="172" cy="50" r="2" opacity=".45"/>
+          <circle cx="66" cy="30" r="1.5" opacity=".25"/><circle cx="300" cy="28" r="1.5" opacity=".25"/><circle cx="46" cy="70" r="1.5" opacity=".25"/><circle cx="318" cy="76" r="1.5" opacity=".25"/><circle cx="84" cy="104" r="1.5" opacity=".25"/><circle cx="288" cy="106" r="1.5" opacity=".25"/>
+        </g>
+        <text x="18" y="24" font-family="Geist Mono,monospace" font-size="9" fill="#0d7377" opacity=".55" letter-spacing="1">.PLY → MESH</text>
+      </svg></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat">AI &amp; CV</span><span class="proj-date">10/2025–02/2026</span></div><div class="proj-title" lang-target="en">3D Shape Reconstruction &amp; Point Cloud</div><div class="proj-title" lang-target="de">3D-Rekonstruktion &amp; Punktwolke</div><p class="proj-desc" lang-target="en">Built a 3D reconstruction pipeline using Open3D. Advanced point cloud filtering and surface reconstruction algorithms convert raw sensor data into refined 3D meshes at scale.</p><p class="proj-desc" lang-target="de">3D-Rekonstruktionspipeline mit Open3D. Fortschrittliche Filterung und Oberflächenrekonstruktion für hochdimensionale Geometrie.</p><div class="proj-chips"><span class="proj-chip">Open3D</span><span class="proj-chip">NumPy</span><span class="proj-chip">Python</span><span class="proj-chip">Point Cloud</span></div></div></div>
+      <div class="proj-card reveal d1"><div class="proj-art" style="background:#f1f5f9"><svg viewBox="0 0 360 122" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <g stroke="#475569" stroke-width="1.2" fill="none" opacity=".45">
+          <line class="dash" x1="180" y1="61" x2="80" y2="30"/><line class="dash" x1="180" y1="61" x2="280" y2="30"/><line class="dash" x1="180" y1="61" x2="80" y2="95"/><line class="dash" x1="180" y1="61" x2="280" y2="95"/>
+        </g>
+        <g fill="#fff" stroke="#475569" stroke-width="1.4">
+          <circle cx="80" cy="30" r="11"/><circle cx="280" cy="30" r="11"/><circle cx="80" cy="95" r="11"/><circle cx="280" cy="95" r="11"/>
+        </g>
+        <g class="pdot"><circle cx="180" cy="61" r="17" fill="#475569"/></g>
+        <g stroke="#fff" stroke-width="1.6" fill="none">
+          <rect x="174" y="59" width="12" height="9" rx="1.5"/><path d="M176.5 59 v-3.5 a3.5 3.5 0 0 1 7 0 V59"/>
+        </g>
+        <text x="18" y="24" font-family="Geist Mono,monospace" font-size="9" fill="#475569" opacity=".55" letter-spacing="1">IDS · ABAC</text>
+      </svg></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat slate" lang-target="en">Data Governance</span><span class="proj-cat slate" lang-target="de">Daten-Governance</span><span class="proj-date">10/2024–02/2025</span></div><div class="proj-title" lang-target="en">Data Space for Bioindustry</div><div class="proj-title" lang-target="de">Datenraum für Bioindustrie</div><p class="proj-desc" lang-target="en">Decentralized data-sharing architecture based on IDS standards for secure biotech collaboration. Implemented ABAC, encryption and semantic interoperability.</p><p class="proj-desc" lang-target="de">Dezentrale Datenteilungsarchitektur auf IDS-Basis für sichere Biotech-Zusammenarbeit mit ABAC und Verschlüsselung.</p><div class="proj-chips"><span class="proj-chip">IDS</span><span class="proj-chip">ABAC</span><span class="proj-chip">Encryption</span><span class="proj-chip">System Design</span></div></div></div>
+      <div class="proj-card reveal d2"><div class="proj-art" style="background:#fff1f2"><svg viewBox="0 0 360 122" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <g stroke="#be123c" stroke-width="2" fill="none" stroke-linecap="round">
+          <path class="draw" d="M180 38 v28 M180 46 L152 62 M180 46 L208 34 M180 66 L160 96 M180 66 L200 96"/>
+        </g>
+        <circle cx="180" cy="27" r="9" fill="none" stroke="#be123c" stroke-width="2"/>
+        <g fill="#be123c">
+          <circle class="pdot" cx="180" cy="46" r="3"/><circle class="pdot" cx="152" cy="62" r="3" style="animation-delay:.3s"/><circle class="pdot" cx="208" cy="34" r="3" style="animation-delay:.6s"/><circle class="pdot" cx="180" cy="66" r="3" style="animation-delay:.9s"/><circle class="pdot" cx="160" cy="96" r="3" style="animation-delay:1.2s"/><circle class="pdot" cx="200" cy="96" r="3" style="animation-delay:1.5s"/>
+        </g>
+        <g stroke="#be123c" stroke-width="1" opacity=".35" fill="none">
+          <rect x="128" y="12" width="106" height="98" rx="6" stroke-dasharray="4 5"/>
+        </g>
+        <text x="18" y="24" font-family="Geist Mono,monospace" font-size="9" fill="#be123c" opacity=".55" letter-spacing="1">POSE ✓</text>
+        <text x="272" y="108" font-family="Geist Mono,monospace" font-size="9" fill="#be123c" opacity=".55" letter-spacing="1">98.2%</text>
+      </svg></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat rose">AI &amp; CV</span><span class="proj-date">05–09/2023</span></div><div class="proj-title">FIT SEIN – Fitness Assistant</div><p class="proj-desc" lang-target="en">CV system extracting body metrics via camera. Multi-factor recommendation engine using physiological data to generate personalised nutrition &amp; fitness plans with a milestone tracker.</p><p class="proj-desc" lang-target="de">Computer-Vision-System zur Körpervermessung. Empfehlungsmaschine für individuelle Ernährungs- und Fitnesspläne auf Basis physiologischer Daten.</p><div class="proj-chips"><span class="proj-chip">Pose Detection</span><span class="proj-chip">Flask</span><span class="proj-chip">Python</span><span class="proj-chip">CV</span></div></div></div>
+      <div class="proj-card reveal"><div class="proj-art" style="background:#f6f1e8"><svg viewBox="0 0 360 122" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <g stroke="#8b7355" stroke-width="1.3" fill="none" stroke-linecap="round">
+          <path class="draw" d="M162 52 H110 V28 H70 M162 70 H98 V96 H60 M198 52 H252 V30 H298 M198 70 H244 V94 H292"/>
+        </g>
+        <g fill="#8b7355">
+          <circle class="pdot" cx="70" cy="28" r="3.5"/><circle class="pdot" cx="60" cy="96" r="3.5" style="animation-delay:.5s"/><circle class="pdot" cx="298" cy="30" r="3.5" style="animation-delay:1s"/><circle class="pdot" cx="292" cy="94" r="3.5" style="animation-delay:1.5s"/>
+        </g>
+        <rect x="162" y="42" width="36" height="38" rx="5" fill="#8b7355"/>
+        <text x="180" y="66" font-family="Geist Mono,monospace" font-size="9" fill="#f6f1e8" text-anchor="middle">GPS</text>
+        <g stroke="#8b7355" fill="none" stroke-width="1.3" opacity=".6">
+          <path d="M310 62 a12 12 0 0 1 0 -18 M316 68 a20 20 0 0 1 0 -30"/>
+        </g>
+        <text x="18" y="24" font-family="Geist Mono,monospace" font-size="9" fill="#8b7355" opacity=".6" letter-spacing="1">ARDUINO · IoT</text>
+      </svg></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat slate">IoT</span><span class="proj-date">01–04/2023</span></div><div class="proj-title">BROX Automation</div><p class="proj-desc" lang-target="en">IoT safety system (Arduino, GPS, sensors) for vehicle tracking &amp; driver safety. Helmet and alcohol detection &gt;85% accuracy. Published at IEEE ICONSTEM 2023.</p><p class="proj-desc" lang-target="de">IoT-Sicherheitssystem (Arduino, GPS, Sensoren) für Fahrzeugverfolgung. Helm- und Alkoholdetektion mit &gt;85% Genauigkeit. IEEE ICONSTEM 2023.</p><div class="proj-chips"><span class="proj-chip">Arduino</span><span class="proj-chip">GPS</span><span class="proj-chip">IoT</span><span class="proj-chip">📄 IEEE</span></div></div></div>
+      <div class="proj-card reveal d1"><div class="proj-art" style="background:#fef3c7"><svg viewBox="0 0 360 122" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <g stroke="#d97706" stroke-width="1" opacity=".25">
+          <line x1="30" y1="96" x2="330" y2="96"/><line x1="30" y1="66" x2="330" y2="66"/><line x1="30" y1="36" x2="330" y2="36"/>
+        </g>
+        <path d="M40 90 L92 70 L140 80 L192 48 L242 58 L300 26 L300 96 L40 96 Z" fill="#d97706" opacity=".14"/>
+        <path class="draw" d="M40 90 L92 70 L140 80 L192 48 L242 58 L300 26" fill="none" stroke="#d97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="dash" d="M300 26 L332 14" fill="none" stroke="#d97706" stroke-width="1.6" opacity=".7"/>
+        <g fill="#d97706">
+          <circle cx="92" cy="70" r="3"/><circle cx="192" cy="48" r="3"/><circle class="pdot" cx="300" cy="26" r="4"/>
+        </g>
+        <text x="18" y="24" font-family="Geist Mono,monospace" font-size="9" fill="#d97706" opacity=".65" letter-spacing="1">USD/BBL ↗ 87%</text>
+      </svg></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat amber">AI</span><span class="proj-date">08–12/2022</span></div><div class="proj-title" lang-target="en">Crude Oil Price Prediction</div><div class="proj-title" lang-target="de">Rohölpreisvorhersage</div><p class="proj-desc" lang-target="en">Regression model at 87% accuracy. Flask web app used by 30+ demo users with sub-2s response time. Won Best Project on Time — ICT Academy (IBM-powered).</p><p class="proj-desc" lang-target="de">Regressionsmodell mit 87% Genauigkeit. Flask-App mit 30+ Nutzern unter 2s. Gewann Best Project on Time – ICT Academy.</p><div class="proj-chips"><span class="proj-chip">Regression</span><span class="proj-chip">Flask</span><span class="proj-chip">Python</span><span class="proj-chip">🏆 Best Project</span></div></div></div>
+      <div class="proj-card reveal d2"><div class="proj-art" style="background:#f5f3ff"><svg viewBox="0 0 360 122" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <path class="draw" d="M28 64 H92 L106 40 L122 88 L138 30 L154 92 L170 64 H236" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="pdot" cx="236" cy="64" r="4" fill="#7c3aed"/>
+        <g class="pdot" style="animation-delay:.6s">
+          <rect x="256" y="38" width="76" height="36" rx="12" fill="#7c3aed"/>
+          <path d="M270 74 L266 86 L284 74 Z" fill="#7c3aed"/>
+          <circle cx="282" cy="56" r="3" fill="#f5f3ff"/><circle cx="294" cy="56" r="3" fill="#f5f3ff" opacity=".7"/><circle cx="306" cy="56" r="3" fill="#f5f3ff" opacity=".4"/>
+        </g>
+        <text x="18" y="24" font-family="Geist Mono,monospace" font-size="9" fill="#7c3aed" opacity=".6" letter-spacing="1">RF · 94.56%</text>
+      </svg></div><div class="proj-body"><div class="proj-meta"><span class="proj-cat violet">AI</span><span class="proj-date">05–07/2022</span></div><div class="proj-title" lang-target="en">Stress Prediction System</div><div class="proj-title" lang-target="de">Stressvorhersagesystem</div><p class="proj-desc" lang-target="en">Compared Logistic Regression, Random Forest &amp; Decision Trees — achieved 94.56% peak accuracy. Real-time Flask chatbot for instant mental health assessments.</p><p class="proj-desc" lang-target="de">Vergleich von 3 ML-Algorithmen — 94,56% Genauigkeit. Flask-Chatbot für Echtzeit-Mentalgesundheitsbewertungen.</p><div class="proj-chips"><span class="proj-chip">Random Forest</span><span class="proj-chip">Flask</span><span class="proj-chip">94.56% Acc</span></div></div></div>
     </div>
   </div>
 </section>
@@ -408,8 +536,8 @@ footer strong{color:var(--ink)}
 </section>
 
 <footer>
-  <div lang-target="en">Crafted by· <strong>Prembabu Chandrababu</strong> · Munich, Germany</div>
-  <div lang-target="de">Mit Sorgfalt gestaltet · <strong>Prembabu Chandrababu</strong> · München, Deutschland</div>
+  <div lang-target="en">Crafted by· <strong>Prembabu Chandrababu</strong> · Germany</div>
+  <div lang-target="de">Mit Sorgfalt gestaltet · <strong>Prembabu Chandrababu</strong> · Deutschland</div>
   <div style="font-family:'Geist Mono',monospace;font-size:11px">prembabu208@gmail.com</div>
 </footer>
 
@@ -431,6 +559,7 @@ function setLang(lang){
   h.classList.remove('lang-en','lang-de');
   h.classList.add('lang-'+lang);
   h.lang=lang;
+  startType();
 }
 
 // SCROLL REVEAL
@@ -443,6 +572,123 @@ window.addEventListener('scroll',()=>document.getElementById('navbar').classList
 // SKILL BARS
 const barObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll('.exp-skill-fill').forEach(b=>b.classList.add('go'))}),{threshold:.3});
 document.querySelectorAll('.exp-block').forEach(el=>barObs.observe(el));
+
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ===== TYPEWRITER =====
+const TYPE_WORDS={
+  en:['ML Engineer','Data Scientist','Computer Vision Builder','Data Analyst'],
+  de:['ML-Ingenieur','Datenwissenschaftler','Computer-Vision-Entwickler','Daten-Enthusiast']
+};
+let typeTimer=null;
+function startType(){
+  const el=document.getElementById('typed');
+  if(!el)return;
+  clearTimeout(typeTimer);
+  const lang=document.documentElement.lang==='de'?'de':'en';
+  const words=TYPE_WORDS[lang];
+  if(reduceMotion){el.textContent=words[0];return}
+  let wi=0,ci=0,deleting=false;
+  el.textContent='';
+  (function tick(){
+    const w=words[wi];
+    if(!deleting){
+      ci++;el.textContent=w.slice(0,ci);
+      if(ci===w.length){deleting=true;typeTimer=setTimeout(tick,2000);return}
+      typeTimer=setTimeout(tick,65);
+    }else{
+      ci--;el.textContent=w.slice(0,ci);
+      if(ci===0){deleting=false;wi=(wi+1)%words.length;typeTimer=setTimeout(tick,350);return}
+      typeTimer=setTimeout(tick,32);
+    }
+  })();
+}
+startType();
+
+// ===== COUNT-UP NUMBERS =====
+function animateCount(el){
+  const target=+el.dataset.target,dur=1300,t0=performance.now();
+  if(reduceMotion){el.textContent=target;return}
+  (function step(t){
+    const p=Math.min((t-t0)/dur,1),ease=1-Math.pow(1-p,3);
+    el.textContent=Math.round(target*ease);
+    if(p<1)requestAnimationFrame(step);
+  })(t0);
+}
+const cntObs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){animateCount(e.target);cntObs.unobserve(e.target)}}),{threshold:.5});
+document.querySelectorAll('.count').forEach(el=>cntObs.observe(el));
+
+// ===== NEURAL NETWORK CANVAS =====
+(function(){
+  const cv=document.getElementById('neural');
+  if(!cv||reduceMotion)return;
+  const ctx=cv.getContext('2d');
+  let W,H,nodes=[],raf=null;
+  const DPR=Math.min(window.devicePixelRatio||1,2);
+  function resize(){
+    W=cv.offsetWidth;H=cv.offsetHeight;
+    cv.width=W*DPR;cv.height=H*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    const n=Math.min(60,Math.floor(W*H/22000));
+    nodes=Array.from({length:n},()=>({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,
+      r:Math.random()*1.6+1
+    }));
+  }
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of nodes){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;
+      if(p.y<0||p.y>H)p.vy*=-1;
+    }
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);
+      if(d<120){
+        ctx.strokeStyle='rgba(13,115,119,'+(0.16*(1-d/120)).toFixed(3)+')';
+        ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      }
+    }
+    for(const p of nodes){
+      ctx.fillStyle='rgba(13,115,119,.4)';
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  // only animate while hero is visible
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){if(!raf)raf=requestAnimationFrame(frame)}
+    else{cancelAnimationFrame(raf);raf=null}
+  })).observe(cv);
+  window.addEventListener('resize',resize);
+  resize();
+})();
+
+// ===== SCROLL PROGRESS + BACK TO TOP =====
+const progEl=document.getElementById('progress'),topBtn=document.getElementById('toTop');
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  progEl.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  topBtn.classList.toggle('show',scrollY>600);
+},{passive:true});
+topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'}));
+
+// ===== SCROLLSPY =====
+const spySections=['about','skills','projects','experience'].map(id=>document.getElementById(id));
+const spyObs=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id));
+  }
+}),{rootMargin:'-45% 0px -50% 0px'});
+spySections.forEach(s=>s&&spyObs.observe(s));
+
+// ===== MARQUEE seamless loop =====
+(function(){
+  const t=document.getElementById('mq-track');
+  if(t)t.innerHTML+=t.innerHTML;
+})();
 </script>
 </body>
 </html>
