@@ -17,7 +17,10 @@
       margin: 0;
       padding: 0
     }
-
+    .hero-photo-mobile{display:none}
+@media(max-width:960px){
+  .hero-photo-mobile{display:block;width:96px;height:150px;px;border-radius:50%;object-fit:cover;margin-bottom:18px;border:3px solid var(--white);box-shadow:0 6px 24px rgba(13,115,119,.25)}
+}
     :root {
       --cream: #f5f2ec;
       --paper: #faf8f4;
@@ -1590,13 +1593,14 @@
         <span lang-target="en">Available · Germany</span>
         <span lang-target="de">Verfügbar · Deutschland</span>
       </div>
+      <img src="Profile.jpeg" alt="Prembabu Chandrababu" class="hero-photo-mobile">
       <h1 class="hero-name">Prembabu<br><span>Chandrababu</span></h1>
       <p class="hero-role"><span id="typed"></span><span class="type-caret"></span></p>
       <p class="hero-desc" lang-target="en">Master's student in Web &amp; Data Science at University of Koblenz —
-        building intelligent systems with machine learning, computer vision, and data pipelines that work in the real
+        building intelligent systems with machine learning, computer vision, interactive and communicative AI that work in the real
         world.</p>
       <p class="hero-desc" lang-target="de">Masterstudent Web &amp; Data Science an der Universität Koblenz — entwickelt
-        intelligente Systeme mit maschinellem Lernen, Computer Vision und Datenpipelines für reale Anwendungen.</p>
+        intelligente Systeme mit maschinellem Lernen, Computer Vision, interaktive und kommunikative KI für reale Anwendungen.</p>
       <div class="hero-btns">
         <a href="#contact" class="btn-dark" lang-target="en">Let's talk →</a>
         <a href="#contact" class="btn-dark" lang-target="de">Kontakt aufnehmen →</a>
